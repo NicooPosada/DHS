@@ -8,12 +8,24 @@ PC : ')' ;
 LLA : '{' ;
 LLC : '}' ;
 PYC : ';' ;
+COMA : ',' ;
 ASIG : '=' ;
-
-NUMERO : DIGITO+ ;
+CA : '[' ;
+CC: ']';
+SUMA : '+' ;
+RESTA : '-' ;
+MULT : '*' ;
+DIV : '/' ;
 
 INT : 'int' ;
 DOUBLE : 'double' ;
+IF : 'if' ;
+ELSE : 'else' ;
+WHILE : 'while' ;
+FOR : 'for' ;
+RETURN : 'retorno' ;
+
+NUMERO : ('+' | '-')? DIGITO+ ;
 
 ID : (LETRA | '_')(LETRA | DIGITO | '_')* ;
 
@@ -38,9 +50,30 @@ instrucciones : instruccion instrucciones
 
 instruccion : asignacion
             | declaracion
+            | retorno
+            | iif
+            | ifor
+            | iwhile
+            | bloque
             ;
 
-declaracion : tipo ID PYC ;
+bloque : LLA instrucciones LLC ;
+
+iwhile : WHILE PA opal PC instruccion ;
+
+iif : IF PA opal PC instruccion ielse ;
+
+ielse : ELSE instruccion
+      |
+      ;
+
+ifor :  FOR PA PYC PYC PC instruccion ;
+
+declaracion : tipo ID listavar PYC ;
+
+listavar : COMA ID listavar
+          |
+          ;
 
 tipo : INT
      | DOUBLE
@@ -51,3 +84,6 @@ asignacion : ID ASIG opal PYC ;
 opal : NUMERO
      | ID
      ;
+
+retorno : RETURN codigo PYC ;
+codigo : NUMERO;
