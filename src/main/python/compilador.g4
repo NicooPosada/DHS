@@ -1,5 +1,7 @@
 grammar compilador;
 
+//Repositorio: 
+
 fragment LETRA : [A-Za-z] ;
 fragment DIGITO : [0-9] ;
 
@@ -58,14 +60,18 @@ OTRO : . ;
 //   |
 //   ;
 
+//Estrctura del programa
 programa : instrucciones EOF ;
 
 instrucciones : instruccion instrucciones
               |
               ;
 
-instruccion : asignacion
+instruccion : asignacion PYC
             | declaracion
+            | prototipoFuncion
+            | declaracionFuncion
+            | llamadaFuncionInstruccion
             | retorno
             | iif
             | ifor
@@ -75,31 +81,112 @@ instruccion : asignacion
 
 bloque : LLA instrucciones LLC ;
 
-iwhile : WHILE PA opal PC instruccion ;
+//Declaracion
+tipo : INT
+     | DOUBLE
+     ;
 
-iif : IF PA opal PC instruccion ielse ;
+declaracion : tipo listaDeclaradores PYC ;
+
+listaDeclaradores : declarador (COMA declarador)* ;
+
+listaOpal : opal (COMA opal)* ;
+
+declarador : ID
+           | ID ASIG opal
+           | ID CA NUMERO CC
+           | ID CA NUMERO CC ASIG LLA listaOpal LLC
+           ;
+
+//Expresiones Aritmeticas
+opal : exp ;
+
+exp : term e ;
+
+e : SUMA term e
+  | RESTA term e
+  |
+  ;
+
+term : factor t ;
+
+t : MULT factor t
+  | DIV factor t
+  |
+  ;
+
+factor : PA exp PC
+       | NUMERO
+       | ID
+       | llamadaFuncion
+       ;
+
+//Comparaciones
+comparacion : opal (MENOR | MAYOR | MENORIGUAL | MAYORIGUAL | IGUAL | DIFERENTE) opal ;
+
+//Asignaciones
+asignacion : ID ASIG opal
+           | INCREMENT ID
+           | DECREMENT ID
+           | ID INCREMENT
+           | ID DECREMENT
+           ;
+
+listaAsignaciones : asignacion (COMA asignacion)*
+                  |
+                  ;
+
+//Expresiones Logicas
+expresionLogica: comparacion logica ;
+
+logica : AND comparacion logica
+       | OR comparacion logica
+       |
+       ;
+
+//Estructuras de control
+iwhile : WHILE PA expresionLogica PC instruccion ;
+
+iif : IF PA expresionLogica PC instruccion ielse ;
 
 ielse : ELSE instruccion
       |
       ;
 
-ifor :  FOR PA PYC PYC PC instruccion ;
+ifor :  FOR PA forInit PYC expresionLogica PYC forInc PC instruccion ;
 
-declaracion : tipo ID listavar PYC ;
+forInit : listaAsignaciones
+        |
+        ;
 
-listavar : COMA ID listavar
-          |
-          ;
+forInc : listaContadores
+       |
+       ;
 
-tipo : INT
-     | DOUBLE
-     ;
+listaContadores : asignacion (COMA asignacion)*
+                |
+                ;
 
-asignacion : ID ASIG opal PYC ;
+//Funciones
+prototipoFuncion : tipo ID PA parametros PC PYC ;
 
-opal : NUMERO
-     | ID
-     ;
+declaracionFuncion : tipo ID PA parametros PC bloque ;
 
-retorno : RETURN codigo PYC ;
-codigo : NUMERO;
+llamadaFuncion : ID PA argumentos PC ;
+
+llamadaFuncionInstruccion : llamadaFuncion PYC ;
+
+retorno : RETURN opal PYC
+  *     | RETURN PYC
+        ;
+
+parametro : tipo ID ;
+
+parametros : parametro (COMA parametro)*
+           |
+           ;
+
+argumentos : opal (COMA opal)*
+           |
+           ;
+
