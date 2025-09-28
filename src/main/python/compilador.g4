@@ -38,7 +38,7 @@ IF : 'if' ;
 ELSE : 'else' ;
 WHILE : 'while' ;
 FOR : 'for' ;
-RETURN : 'retorn' ;
+RETURN : 'return' ;
 
 
 //Literales
@@ -69,8 +69,8 @@ instrucciones : instruccion instrucciones
 
 instruccion : asignacion PYC
             | declaracion
-            | prototipoFuncion
-            | declaracionFuncion
+            | prototipoDeFuncion
+            | declaracionDeFuncion
             | llamadaFuncionInstruccion
             | retorno
             | iif
@@ -117,6 +117,7 @@ t : MULT factor t
 
 factor : PA exp PC
        | NUMERO
+       | ID CA opal CC
        | ID
        | llamadaFuncion
        ;
@@ -132,10 +133,6 @@ asignacion : ID ASIG opal
            | ID DECREMENT
            ;
 
-listaAsignaciones : asignacion (COMA asignacion)*
-                  |
-                  ;
-
 //Expresiones Logicas
 expresionLogica: comparacion logica ;
 
@@ -143,6 +140,10 @@ logica : AND comparacion logica
        | OR comparacion logica
        |
        ;
+
+listaAsignaciones : asignacion (COMA asignacion)*
+                  |
+                  ;
 
 //Estructuras de control
 iwhile : WHILE PA expresionLogica PC instruccion ;
@@ -153,7 +154,7 @@ ielse : ELSE instruccion
       |
       ;
 
-ifor :  FOR PA forInit PYC expresionLogica PYC forInc PC instruccion ;
+ifor :  FOR PA forInit PYC expresionLogica PYC forInc PC bloque ;
 
 forInit : listaAsignaciones
         |
@@ -168,16 +169,14 @@ listaContadores : asignacion (COMA asignacion)*
                 ;
 
 //Funciones
-prototipoFuncion : tipo ID PA parametros PC PYC ;
+prototipoDeFuncion : tipo ID PA parametros PC PYC ;
 
-declaracionFuncion : tipo ID PA parametros PC bloque ;
+declaracionDeFuncion : tipo ID PA parametros PC bloque ;
 
 llamadaFuncion : ID PA argumentos PC ;
 
-llamadaFuncionInstruccion : llamadaFuncion PYC ;
-
 retorno : RETURN opal PYC
-  *     | RETURN PYC
+        | RETURN PYC
         ;
 
 parametro : tipo ID ;
@@ -190,3 +189,4 @@ argumentos : opal (COMA opal)*
            |
            ;
 
+llamadaFuncionInstruccion : llamadaFuncion PYC ;
