@@ -1,6 +1,6 @@
 grammar compilador;
 
-//Repositorio: 
+//Repositorio: https://github.com/NicooPosada/DHS
 
 fragment LETRA : [A-Za-z] ;
 fragment DIGITO : [0-9] ;
