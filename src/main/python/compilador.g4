@@ -3,6 +3,7 @@ grammar compilador;
 fragment LETRA : [A-Za-z] ;
 fragment DIGITO : [0-9] ;
 
+//Simbolos
 PA : '(' ;
 PC : ')' ;
 LLA : '{' ;
@@ -16,6 +17,17 @@ SUMA : '+' ;
 RESTA : '-' ;
 MULT : '*' ;
 DIV : '/' ;
+MENOR : '<' ;
+MAYOR : '>' ;
+MENORIGUAL : '<=' ;
+MAYORIGUAL : '>=' ;
+IGUAL : '==' ;
+DIFERENTE : '!=' ;
+INCREMENT : '++' ;
+DECREMENT : '--' ;
+AND : '&&' ;
+OR : '||' ;
+NOT : '!' ;
 
 INT : 'int' ;
 DOUBLE : 'double' ;
