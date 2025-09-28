@@ -38,11 +38,14 @@ WHILE : 'while' ;
 FOR : 'for' ;
 RETURN : 'retorn' ;
 
+
+//Literales
 NUMERO : ('+' | '-')? DIGITO+ ;
 
 ID : (LETRA | '_')(LETRA | DIGITO | '_')* ;
 
 WS : [ \n\r\t] -> skip ;
+
 OTRO : . ;
 
 // s : ID     {print("ID ->" + $ID.text + "<--") }         s
