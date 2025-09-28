@@ -29,13 +29,14 @@ AND : '&&' ;
 OR : '||' ;
 NOT : '!' ;
 
+//Palabras reservadas
 INT : 'int' ;
 DOUBLE : 'double' ;
 IF : 'if' ;
 ELSE : 'else' ;
 WHILE : 'while' ;
 FOR : 'for' ;
-RETURN : 'retorno' ;
+RETURN : 'retorn' ;
 
 NUMERO : ('+' | '-')? DIGITO+ ;
 
