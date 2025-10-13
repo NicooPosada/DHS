@@ -10,12 +10,13 @@ class Escucha (compiladorListener) :
     profundidad = 0
     numNodos = 0
 
+
+
+
     #Inicializamos la tabla de simbolos
     def __init__(self):
         super().__init__()
         self.ts = TS.getTablaSimbolo()
-
-
 
     def enterPrograma(self, ctx:compiladorParser.ProgramaContext):
         print("Comienza el parsing")
@@ -39,59 +40,63 @@ class Escucha (compiladorListener) :
     def exitDeclaracion(self, ctx:compiladorParser.DeclaracionContext):
         print("Declaracion EXIT  -> |" + ctx.getText() + "|")
         print("  -- Cant. hijos = " + str(ctx.getChildCount()))
-        #Obtenemos el tipo:
-        #El ctx.tipo nos va a devolver el nodo del arbol
-        #que representa el tipo(int, float, double, etc)
-        #y el .getText nos va devolver el texto
+        
+        # Obtenemos el tipo (hijo 0)
         tipo = ctx.tipo().getText() if ctx.tipo() else None
+        #ctx.getChild(0).getText()
+        # Lista para almacenar todas las variables declaradas
+        variables = []
         
-        #Obtenemos la lista de declaradores
-        #Esto es porque podemos tener multiples declaraciones
-        #devuelve el nodo que contiene todos los declaradores
-        lista_declaradores = ctx.listaDeclaradores()
-        if lista_declaradores is None:
-            return
+        # Primera variable: ID (hijo 1)
+        primer_id = ctx.ID()
+        #ctx.getChild(1).getText()
+        if primer_id:
+            nombre = primer_id.getText()
+            # inic (hijo 2): puede ser vacío o ASIG opal
+            tiene_inic = ctx.inic() is not None and ctx.inic().ASIG() is not None
+            variables.append((nombre, tiene_inic))
         
-        #Extraemos los nombres de las variables declaradas
-        names = [] #Creamos la lista de nombre de variables
-        inicializados = {}#Creamos este diccionario para saber cuales estan inicializados
-        
-        #Obtenemos todos los declaradores:
-        #declarador() puede devolver una lista o uno solo
-        decls = lista_declaradores.declarador()
-        if not isinstance(decls, list):
-            decls = [decls] #SI es uno SOLO, lo comvertimos a lista
+        # Procesar listavar (hijo 3)
+        def procesar_listavar(listavar_ctx):
+            if listavar_ctx is None or listavar_ctx.getChildCount() == 0:
+                return []
             
-        #Procesamos los declaradores, obtenemos los tokens
-        for d in decls:
-            #Obtenemos el ID (osea el nombre de la variable)
-            id_token = d.ID() if hasattr(d,'ID') else None
-            if id_token:
-                name = id_token.getText()
-                names.append(name)
+            vars_list = []
+            # listavar : COMA ID inic listavar
+            if listavar_ctx.ID():
+                nombre = listavar_ctx.ID().getText()
+                # inic puede ser vacío o ASIG opal
+                tiene_inic = listavar_ctx.inic() is not None and listavar_ctx.inic().ASIG() is not None
+                vars_list.append((nombre, tiene_inic))
                 
-                #Verificamos si tiene inicializacion
-                # Recorre los hijos del declarador buscando el símbolo '='
-                tiene_asig = any(child.getText() == '=' for child in d.getChildren()) if hasattr (d, 'getChildren') else False
-                inicializados[name] = tiene_asig
-                
-        #Registrar cada  nombre en la tabla de simbolos
-        for n in names:
-            #Buscamos solo en el conexto actual
-            simbolo_existente = self.ts.contextoActual().buscarSimboloLocal(n)
+                # Procesar el siguiente listavar (recursivo)
+                siguiente_listavar = listavar_ctx.listavar()
+                if siguiente_listavar:
+                    vars_list.extend(procesar_listavar(siguiente_listavar))
+            
+            return vars_list
+        
+        # Agregar el resto de las variables desde listavar
+        listavar_ctx = ctx.listavar()
+        variables.extend(procesar_listavar(listavar_ctx))
+        
+        # Registrar cada variable en la tabla de símbolos
+        for nombre, inicializado in variables:
+            # Buscar solo en el contexto actual (mismo scope)
+            simbolo_existente = self.ts.contextoActual().buscarSimboloLocal(nombre)
             if simbolo_existente:
-                print(f"Error semantico(se declaro la misma variable en el mismo contexto)")
+                print(f"ERROR semantico: Variable '{nombre}' ya declarada en el mismo contexto")
             else:
-                
-                #Creamos objeto ID con toda la informacion para guardar la variable declarada
-                idobj = ID(nombre=n, tipo=tipo, inicializado=inicializados.get(n, False), usado=False)
+                # Crear objeto ID con toda la información
+                idobj = ID(nombre=nombre, tipo=tipo, inicializado=inicializado, usado=False)
                 self.ts.addSimbolo(idobj)
-                print(f"Declarada variable '{n}' tipo={tipo}, inicializada={inicializados.get(n, False)}")
-    def enterListaAsignaciones(self, ctx:compiladorParser.ListaAsignacionesContext):
+                print(f"Declarada variable '{nombre}' (tipo={tipo}, inicializada={inicializado})")
+
+    def enterListavar(self, ctx:compiladorParser.ListavarContext):
         self.profundidad += 1
 
-    def exitListaAsignaciones(self, ctx:compiladorParser.ListaAsignacionesContext):
-        print("  -- ListaAsignaciones(%d) Cant. hijos  = %d" % (self.profundidad, ctx.getChildCount()))
+    def exitListavar(self, ctx:compiladorParser.ListavarContext):
+        print("  -- ListaVar(%d) Cant. hijos  = %d" % (self.profundidad, ctx.getChildCount()))
         self.profundidad -= 1
         if ctx.getChildCount() == 4 :
             print("      hoja ID --> |%s|" % ctx.getChild(1).getText())
@@ -105,6 +110,17 @@ class Escucha (compiladorListener) :
         
     def enterEveryRule(self, ctx):
         self.numNodos += 1
+    
+    def enterBloque(self, ctx):
+        print("  " * self.indent + "Entrando a bloque")
+        self.ts.addContexto("bloque")
+        self.indent += 1 
+    
+    def exitBloque(self, ctx):
+        self.indent -= 1
+        print("  " * self.indent + "Saliendo de bloque")
+        self.ts.delContexto()  # POP: Elimina el tope
+    
     
     def __str__(self):
         return "Se hicieron " + str(self.declaracion) + " declaraciones\n" + \

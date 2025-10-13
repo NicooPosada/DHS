@@ -82,22 +82,34 @@ instruccion : asignacion PYC
 bloque : LLA instrucciones LLC ;
 
 //Declaracion
+// ===== TIPOS Y DECLARACIONES =====
 tipo : INT
      | DOUBLE
      ;
 
-declaracion : tipo listaDeclaradores PYC ;
 
-listaDeclaradores : declarador (COMA declarador)* ;
+inic : ASIG opal
+     |
+     ;
+
+declaracion : tipo ID inic listavar PYC ;
+
+listavar : COMA ID inic listavar
+         |
+         ;
+
+
+//declaracion : tipo listaDeclaradores PYC ;
+
+//listaDeclaradores : declarador (COMA declarador)* ;
 
 listaOpal : opal (COMA opal)* ;
 
-declarador : ID
-           | ID ASIG opal
-           | ID CA NUMERO CC
-           | ID CA NUMERO CC ASIG LLA listaOpal LLC
-           ;
-
+//declarador : ID
+//           | ID ASIG opal
+//           | ID CA NUMERO CC
+//           | ID CA NUMERO CC ASIG LLA listaOpal LLC
+//           ;
 //Expresiones Aritmeticas
 opal : exp ;
 

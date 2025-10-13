@@ -1,2 +1,1 @@
-int array[5];
-double array2[5] = {0};
+int x;
