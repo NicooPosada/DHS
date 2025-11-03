@@ -1,1 +1,24 @@
-int x;
+
+int a = 5;
+b = 10;
+
+
+int x = 1;
+int x = 2;
+
+
+y = 15;
+int y;
+
+
+int sinUsar = 100;
+
+
+int noInit;
+int resultado = noInit + 5;
+
+
+int global = 1;
+{
+    int global = 2;
+}
