@@ -1,0 +1,22 @@
+int x = 10;
+int y;
+int z = x + 5;
+
+while (x < 20) {
+    int a = 5;
+    y = x + a;
+    x++;
+}
+
+if (y > 10) {
+    int b = y - 5;
+    z = b * 2;
+} else {
+    z = 0;
+}
+
+int i = 0;
+for (i = 0; i < 10; i++) {
+    int temp = i * 2;
+    y = y + temp;
+}
