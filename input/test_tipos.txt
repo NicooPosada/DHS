@@ -1,0 +1,6 @@
+int a = 5;
+double b = 10;
+int c = 3.14;
+double d = 2.5;
+int e = a + 3;
+double f = b + 1.5;
