@@ -15,7 +15,7 @@ from Escucha import Escucha
 #     antlr4 -Dlanguage=Python3 -visitor compilador.g4 -o .
 
 def main(argv):
-    archivo = "input/programa.txt"
+    archivo = "input/prueba_con_errores.txt"
     if len(argv) > 1:
         archivo = argv[1]
     
