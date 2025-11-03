@@ -1,3 +1,5 @@
+# symbol_table.py
+
 class ID:
     """Representa un símbolo (variable o función simple)."""
     def __init__(self, nombre: str, tipo: str = None, inicializado: bool = False, usado: bool = False):
