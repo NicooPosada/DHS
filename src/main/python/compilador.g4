@@ -146,12 +146,18 @@ asignacion : ID ASIG opal
            ;
 
 //Expresiones Logicas
-expresionLogica: comparacion logica ;
+//expresionLogica : comparacion logica ;
+//Cambiamos aca porque no soportaba paréntesis
+expresionLogica : comparacion
+                | expresionLogica AND expresionLogica
+                | expresionLogica OR expresionLogica
+                | PA expresionLogica PC
+                ;
 
-logica : AND comparacion logica
-       | OR comparacion logica
-       |
-       ;
+//logica : AND comparacion logica
+//       | OR comparacion logica
+//       |
+//       ;
 
 listaAsignaciones : asignacion (COMA asignacion)*
                   |
@@ -168,7 +174,8 @@ ielse : ELSE instruccion
 
 ifor :  FOR PA forInit PYC expresionLogica PYC forInc PC bloque ;
 
-forInit : listaAsignaciones
+forInit : tipo ID inic listavar
+        | listaAsignaciones
         |
         ;
 
