@@ -2,86 +2,73 @@ grammar compilador;
 
 //Repositorio: https://github.com/NicooPosada/DHS
 
+// ===== TOKENS LEXICOS =====
 fragment LETRA : [A-Za-z] ;
 fragment DIGITO : [0-9] ;
 
-//Simbolos
+// Símbolos
 PA : '(' ;
 PC : ')' ;
 LLA : '{' ;
 LLC : '}' ;
 PYC : ';' ;
-COMA : ',' ;
 ASIG : '=' ;
 CA : '[' ;
-CC: ']';
+CC : ']' ;
 SUMA : '+' ;
 RESTA : '-' ;
 MULT : '*' ;
 DIV : '/' ;
+COMA : ',' ;
 MENOR : '<' ;
 MAYOR : '>' ;
 MENORIGUAL : '<=' ;
 MAYORIGUAL : '>=' ;
 IGUAL : '==' ;
 DIFERENTE : '!=' ;
-INCREMENT : '++' ;
-DECREMENT : '--' ;
 AND : '&&' ;
 OR : '||' ;
 NOT : '!' ;
+INCREMENT : '++' ;
+DECREMENT : '--' ;
 
-//Palabras reservadas
+// Palabras reservadas
 INT : 'int' ;
 DOUBLE : 'double' ;
 IF : 'if' ;
 ELSE : 'else' ;
-WHILE : 'while' ;
 FOR : 'for' ;
+WHILE : 'while' ;
 RETURN : 'return' ;
 
-
-//Literales
+// Literales
+NUMERO_CON_PUNTO : ('+' | '-')? DIGITO+ '.' DIGITO+ ;
 NUMERO : ('+' | '-')? DIGITO+ ;
-
 ID : (LETRA | '_')(LETRA | DIGITO | '_')* ;
-
-WS : [ \n\r\t] -> skip ;
-
+WS : [ \t\r\n] -> skip ;
 OTRO : . ;
 
-// s : ID     {print("ID ->" + $ID.text + "<--") }         s
-//   | NUMERO {print("NUMERO ->" + $NUMERO.text + "<--") } s
-//   | OTRO   {print("Otro ->" + $OTRO.text + "<--") }     s
-//   | EOF
-//   ;
-
-// s : PA s PC s
-//   |
-//   ;
-
-//Estrctura del programa
+// ===== ESTRUCTURA GENERAL DEL PROGRAMA =====
 programa : instrucciones EOF ;
 
-instrucciones : instruccion instrucciones
+instrucciones : instruccion instrucciones 
               |
               ;
 
 instruccion : asignacion PYC
-            | declaracion
-            | prototipoDeFuncion
-            | declaracionDeFuncion
-            | llamadaFuncionInstruccion
-            | retorno
-            | iif
-            | ifor
-            | iwhile
-            | bloque
-            ;
+           | declaracion
+           | iwhile
+           | bloque
+           | iif
+           | ifor
+           | declaracionDeFuncion
+           | prototipoDeFuncion
+           | llamadaFuncionInstruccion
+           | retorno
+           ;
 
 bloque : LLA instrucciones LLC ;
 
-//Declaracion
 // ===== TIPOS Y DECLARACIONES =====
 tipo : INT
      | DOUBLE
@@ -110,7 +97,8 @@ listaOpal : opal (COMA opal)* ;
 //           | ID CA NUMERO CC
 //           | ID CA NUMERO CC ASIG LLA listaOpal LLC
 //           ;
-//Expresiones Aritmeticas
+
+// ===== EXPRESIONES ARITMÉTICAS =====
 opal : exp ;
 
 exp : term e ;
@@ -128,16 +116,17 @@ t : MULT factor t
   ;
 
 factor : PA exp PC
-       | NUMERO
-       | ID CA opal CC
        | ID
+       | ID CA opal CC
+       | NUMERO_CON_PUNTO
+       | NUMERO
        | llamadaFuncion
        ;
 
-//Comparaciones
+// ===== COMPARACIONES =====
 comparacion : opal (MENOR | MAYOR | MENORIGUAL | MAYORIGUAL | IGUAL | DIFERENTE) opal ;
 
-//Asignaciones
+// ===== ASIGNACIONES =====
 asignacion : ID ASIG opal
            | INCREMENT ID
            | DECREMENT ID
@@ -145,7 +134,7 @@ asignacion : ID ASIG opal
            | ID DECREMENT
            ;
 
-//Expresiones Logicas
+           // ===== EXPRESIONES LÓGICAS =====
 //expresionLogica : comparacion logica ;
 //Cambiamos aca porque no soportaba paréntesis
 expresionLogica : comparacion
@@ -159,23 +148,29 @@ expresionLogica : comparacion
 //       |
 //       ;
 
-listaAsignaciones : asignacion (COMA asignacion)*
+
+listaAsignaciones : asignacion (COMA asignacion)* 
                   |
                   ;
 
-//Estructuras de control
+
+
+// ===== ESTRUCTURAS DE CONTROL =====
+
+// While
 iwhile : WHILE PA expresionLogica PC instruccion ;
 
+// If-Else
 iif : IF PA expresionLogica PC instruccion ielse ;
-
 ielse : ELSE instruccion
-      |
+      | 
       ;
 
-ifor :  FOR PA forInit PYC expresionLogica PYC forInc PC bloque ;
+// For
+ifor : FOR PA forInit PYC expresionLogica PYC forInc PC bloque ;
 
 forInit : tipo ID inic listavar
-        | listaAsignaciones
+        | listaAsignaciones 
         |
         ;
 
@@ -187,12 +182,13 @@ listaContadores : asignacion (COMA asignacion)*
                 |
                 ;
 
-//Funciones
+// ===== FUNCIONES =====
 prototipoDeFuncion : tipo ID PA parametros PC PYC ;
 
 declaracionDeFuncion : tipo ID PA parametros PC bloque ;
 
-llamadaFuncion : ID PA argumentos PC ;
+
+llamadaFuncion : ID PA argumentos PC;
 
 retorno : RETURN opal PYC
         | RETURN PYC
@@ -208,4 +204,4 @@ argumentos : opal (COMA opal)*
            |
            ;
 
-llamadaFuncionInstruccion : llamadaFuncion PYC ;
+llamadaFuncionInstruccion : llamadaFuncion PYC;
